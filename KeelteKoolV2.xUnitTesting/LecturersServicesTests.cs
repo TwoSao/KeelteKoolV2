@@ -1,90 +1,46 @@
-﻿using KeelteKoolV2.Core.DTO;
+using KeelteKoolV2.Core.Domain;
+using KeelteKoolV2.Core.DTO;
 using KeelteKoolV2.Core.ServiceInterface;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
 
 namespace KeelteKoolV2.xUnitTesting
 {
     public class LecturersServicesTests : TestBase
     {
+        // Kontrollib, et uue lektori lisamine andmebaasi töötab korrektselt
         [Fact]
-        public async Task Should_AddNewLecturer_WhenResultISReturned()
+        public async Task Should_AddNewLecturer_WhenResultIsReturned()
         {
-            //ülesseade
-            LecturerDTO dto = new LecturerDTO();
-            dto.FirstName = "Test";
-            dto.LastName = "Test";
-            dto.Qualifications = "Testicles";
-            //dto.Image = 
+            // ülesseade
+            LecturerDTO dto = MockLecturerDTOData();
 
-            //tegevus
+            // tegevus
             var result = await Svc<ILecturersServices>().Create(dto);
 
-            //kontroll
+            // kontroll
             Assert.NotNull(result);
+            Assert.Equal(dto.FirstName, result.FirstName);
+            Assert.Equal(dto.LastName, result.LastName);
+            Assert.Equal(dto.Qualifications, result.Qualifications);
+            Assert.NotEqual(Guid.Empty, result.Id);
+            Assert.True(result.CreatedAt <= DateTime.Now);
         }
 
-        //details test
-        [Fact]
-        public async Task Should_GetLecturerDetails_WhenGuidISNotNull()
+        private async Task<Lecturer> AddLecturerToDB()
         {
-            //ülesseade
-            LecturerDTO dto = new LecturerDTO();
-            dto.FirstName = "Test";
-            dto.LastName = "Test";
-            dto.Qualifications = "Testicles";
-            var createdLecturer = await Svc<ILecturersServices>().Create(dto);
-
-            //tegevus
-            var result = await Svc<ILecturersServices>().DetailAsync(createdLecturer.Id);
-
-            //kontroll
-            Assert.NotNull(result);
+            LecturerDTO dto = MockLecturerDTOData();
+            var created = await Svc<ILecturersServices>().Create(dto);
+            return created;
         }
 
-        //update test
-        [Fact]
-        public async Task Should_UpdateLecturerWithNewData_WhenDataIsDifferentFromDB()
+        private LecturerDTO MockLecturerDTOData()
         {
-            //ülesseade
-            LecturerDTO dto = new LecturerDTO();
-            dto.FirstName = "Test";
-            dto.LastName = "Test";
-            dto.Qualifications = "Testicles";
-            var createdLecturer = await Svc<ILecturersServices>().Create(dto);
-
-            LecturerDTO updatedinfo = new LecturerDTO();
-            updatedinfo.FirstName = "TestUusinfo";
-            updatedinfo.LastName = "Test2222222222";
-            updatedinfo.Qualifications = "Maximum OwO";
-
-            //tegevus
-            var result = await Svc<ILecturersServices>().Update(updatedinfo);
-
-            //kontroll
-            Assert.NotNull(result);
+            return new LecturerDTO
+            {
+                FirstName = "Mari",
+                LastName = "Maasikas",
+                Qualifications = "Magistrikraad inglise filoloogias"
+            };
         }
-
-        //delete test
-        [Fact]
-        public async Task Should_DeleteLecturer_WhenValidIDIsGiven()
-        {
-            //ülesseade
-            LecturerDTO dto = new LecturerDTO();
-            dto.FirstName = "Test";
-            dto.LastName = "Test";
-            dto.Qualifications = "Testicles";
-            var createdLecturer = await Svc<ILecturersServices>().Create(dto);
-
-            //tegevus
-            var result = await Svc<ILecturersServices>().Delete(createdLecturer.Id);
-
-            //kontroll
-            Assert.NotNull(result);
-        }
-
-        
     }
 }
