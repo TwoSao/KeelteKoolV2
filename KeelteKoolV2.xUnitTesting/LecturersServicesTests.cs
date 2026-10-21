@@ -26,6 +26,22 @@ namespace KeelteKoolV2.xUnitTesting
             Assert.True(result.CreatedAt <= DateTime.Now);
         }
 
+        // Kontrollib, et tühjade väljadega lektori lisamine ei õnnestu
+        [Fact]
+        public async Task ShouldNot_AddNewLecturer_WhenRequiredFieldsAreEmpty()
+        {
+            // ülesseade
+            LecturerDTO dto = MockLecturerDTOData();
+            dto.FirstName = string.Empty;
+            dto.LastName = string.Empty;
+
+            // tegevus
+            var result = await Svc<ILecturersServices>().Create(dto);
+
+            // kontroll
+            Assert.Null(result);
+        }
+
         private async Task<Lecturer> AddLecturerToDB()
         {
             LecturerDTO dto = MockLecturerDTOData();
