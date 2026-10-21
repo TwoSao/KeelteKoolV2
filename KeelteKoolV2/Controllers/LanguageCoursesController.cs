@@ -14,7 +14,8 @@ namespace KeelteKoolV2.Controllers
         private readonly ILanguageCoursesServices _languageCoursesServices;
 
         public LanguageCoursesController(KeelteKoolV2Context context, ILanguageCoursesServices languageCoursesServices)
-        {
+        {  
+            
             _context = context;
             _languageCoursesServices = languageCoursesServices;
         }
