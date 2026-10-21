@@ -61,6 +61,32 @@ namespace KeelteKoolV2.xUnitTesting
             Assert.True(result.Id == createdLecturer.Id);
         }
 
+        // Kontrollib, et lektori andmete uuendamine salvestab uued andmed õigesti
+        [Fact]
+        public async Task Should_UpdateLecturerWithNewData_WhenDataIsDifferentFromDB()
+        {
+            // ülesseade
+            Lecturer createdLecturer = await AddLecturerToDB();
+
+            LecturerDTO updatedDto = new LecturerDTO();
+            updatedDto.Id = createdLecturer.Id;
+            updatedDto.FirstName = "Uus Eesnimi";
+            updatedDto.LastName = "Uus Perenimi";
+            updatedDto.Qualifications = "Doktor";
+            updatedDto.CreatedAt = createdLecturer.CreatedAt;
+
+            // tegevus
+            var result = await Svc<ILecturersServices>().Update(updatedDto);
+
+            // kontroll
+            Assert.NotNull(result);
+            Assert.Equal(updatedDto.Id, result.Id);
+            Assert.Equal(updatedDto.FirstName, result.FirstName);
+            Assert.Equal(updatedDto.LastName, result.LastName);
+            Assert.Equal(updatedDto.Qualifications, result.Qualifications);
+            Assert.True(result.ModifiedAt >= createdLecturer.CreatedAt);
+        }
+
         private async Task<Lecturer> AddLecturerToDB()
         {
             LecturerDTO dto = MockLecturerDTOData();
