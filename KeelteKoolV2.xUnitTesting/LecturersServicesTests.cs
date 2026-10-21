@@ -42,6 +42,25 @@ namespace KeelteKoolV2.xUnitTesting
             Assert.Null(result);
         }
 
+        // Kontrollib, et lektori detailid tagastatakse õige ID järgi
+        [Fact]
+        public async Task Should_ReturnLecturerDetails_WhenGuidIsNotNull()
+        {
+            // ülesseade
+            Lecturer createdLecturer = await AddLecturerToDB();
+
+            // tegevus
+            var result = await Svc<ILecturersServices>().DetailAsync(createdLecturer.Id);
+
+            // kontroll
+            Assert.NotNull(result);
+            Assert.Equal(createdLecturer.Id, result.Id);
+            Assert.Equal(createdLecturer.FirstName, result.FirstName);
+            Assert.Equal(createdLecturer.LastName, result.LastName);
+            Assert.Equal(createdLecturer.Qualifications, result.Qualifications);
+            Assert.True(result.Id == createdLecturer.Id);
+        }
+
         private async Task<Lecturer> AddLecturerToDB()
         {
             LecturerDTO dto = MockLecturerDTOData();
