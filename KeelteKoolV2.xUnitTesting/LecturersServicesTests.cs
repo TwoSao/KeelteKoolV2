@@ -87,6 +87,25 @@ namespace KeelteKoolV2.xUnitTesting
             Assert.True(result.ModifiedAt >= createdLecturer.CreatedAt);
         }
 
+        // Kontrollib, et lektori kustutamine eemaldab kirje andmebaasist
+        [Fact]
+        public async Task Should_DeleteLecturer_WhenValidIDIsGiven()
+        {
+            // ülesseade
+            Lecturer createdLecturer = await AddLecturerToDB();
+
+            // tegevus
+            var deletedLecturer = await Svc<ILecturersServices>().Delete(createdLecturer.Id);
+            var result = await Svc<ILecturersServices>().DetailAsync(createdLecturer.Id);
+
+            // kontroll
+            Assert.Null(result);
+            Assert.NotNull(deletedLecturer);
+            Assert.Equal(createdLecturer.Id, deletedLecturer.Id);
+            Assert.Equal(createdLecturer.FirstName, deletedLecturer.FirstName);
+            Assert.NotEqual(deletedLecturer, result);
+        }
+
         private async Task<Lecturer> AddLecturerToDB()
         {
             LecturerDTO dto = MockLecturerDTOData();
