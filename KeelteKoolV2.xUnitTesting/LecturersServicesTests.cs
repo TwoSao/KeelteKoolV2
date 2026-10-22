@@ -120,6 +120,20 @@ namespace KeelteKoolV2.xUnitTesting
             Assert.Null(result);
         }
 
+        // Kontrollib, et olematut ID-d kasutades tagastatakse null
+        [Fact]
+        public async Task ShouldNot_ReturnLecturerDetails_WhenGuidDoesNotExist()
+        {
+            // ülesseade
+            Guid fakeId = Guid.NewGuid();
+
+            // tegevus
+            var result = await Svc<ILecturersServices>().DetailAsync(fakeId);
+
+            // kontroll
+            Assert.Null(result);
+        }
+
         private async Task<Lecturer> AddLecturerToDB()
         {
             LecturerDTO dto = MockLecturerDTOData();
