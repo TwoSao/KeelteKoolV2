@@ -106,6 +106,20 @@ namespace KeelteKoolV2.xUnitTesting
             Assert.NotEqual(deletedLecturer, result);
         }
 
+        // Kontrollib, et null DTO puhul ei lisata lektorit andmebaasi
+        [Fact]
+        public async Task ShouldNot_AddLecturer_WhenDtoIsNull()
+        {
+            // ülesseade
+            LecturerDTO dto = null;
+
+            // tegevus
+            var result = await Svc<ILecturersServices>().Create(dto);
+
+            // kontroll
+            Assert.Null(result);
+        }
+
         private async Task<Lecturer> AddLecturerToDB()
         {
             LecturerDTO dto = MockLecturerDTOData();
