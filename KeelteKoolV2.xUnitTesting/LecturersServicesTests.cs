@@ -134,6 +134,25 @@ namespace KeelteKoolV2.xUnitTesting
             Assert.Null(result);
         }
 
+        // Kontrollib, et lektori eesnimi ei ole tühi pärast lisamist
+        [Fact]
+        public async Task Should_HaveNonEmptyFirstName_WhenLecturerIsCreated()
+        {
+            // ülesseade
+            LecturerDTO dto = MockLecturerDTOData();
+
+            // tegevus
+            var result = await Svc<ILecturersServices>().Create(dto);
+
+            // kontroll
+            Assert.NotNull(result);
+            Assert.NotNull(result.FirstName);
+            Assert.NotEmpty(result.FirstName);
+            Assert.NotNull(result.LastName);
+            Assert.NotEmpty(result.LastName);
+            Assert.True(result.FirstName.Length > 0);
+        }
+
         private async Task<Lecturer> AddLecturerToDB()
         {
             LecturerDTO dto = MockLecturerDTOData();
