@@ -153,6 +153,51 @@ namespace KeelteKoolV2.xUnitTesting
             Assert.True(result.FirstName.Length > 0);
         }
 
+        // Kontrollib, et lektori CreatedAt ja ModifiedAt on seatud lisamise hetkel
+        [Fact]
+        public async Task Should_SetCreatedAtAndModifiedAt_WhenLecturerIsCreated()
+        {
+            // ülesseade
+            LecturerDTO dto = MockLecturerDTOData();
+            DateTime beforeCreate = DateTime.Now.AddSeconds(-1);
+
+            // tegevus
+            var result = await Svc<ILecturersServices>().Create(dto);
+
+            // kontroll
+            Assert.NotNull(result);
+            Assert.True(result.CreatedAt >= beforeCreate);
+            Assert.True(result.ModifiedAt >= beforeCreate);
+            Assert.True(result.CreatedAt <= DateTime.Now);
+            Assert.Equal(result.CreatedAt.Date, result.ModifiedAt.Date);
+        }
+
+        // Kontrollib, et uuendamisel CreatedAt ei muutu, aga ModifiedAt muutub
+        [Fact]
+        public async Task Should_NotChangeCreatedAt_WhenLecturerIsUpdated()
+        {
+            // ülesseade
+            Lecturer createdLecturer = await AddLecturerToDB();
+
+            LecturerDTO updatedDto = new LecturerDTO();
+            updatedDto.Id = createdLecturer.Id;
+            updatedDto.FirstName = "Muudetud";
+            updatedDto.LastName = "Nimi";
+            updatedDto.Qualifications = "Magister";
+            updatedDto.CreatedAt = createdLecturer.CreatedAt;
+
+            // tegevus
+            var result = await Svc<ILecturersServices>().Update(updatedDto);
+
+            // kontroll
+            Assert.NotNull(result);
+            Assert.Equal(createdLecturer.CreatedAt, result.CreatedAt);
+            Assert.NotEqual(createdLecturer.FirstName, result.FirstName);
+            Assert.NotEqual(createdLecturer.LastName, result.LastName);
+            Assert.Equal(updatedDto.Qualifications, result.Qualifications);
+            Assert.True(result.ModifiedAt >= result.CreatedAt);
+        }
+
         private async Task<Lecturer> AddLecturerToDB()
         {
             LecturerDTO dto = MockLecturerDTOData();
