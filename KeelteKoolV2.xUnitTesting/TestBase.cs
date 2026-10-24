@@ -30,13 +30,14 @@ namespace KeelteKoolV2.xUnitTesting
         {
             services.AddScoped<ILanguageCoursesServices, LanguageCoursesServices>();
             services.AddScoped<ILecturersServices, LecturersServices>();
+            services.AddScoped<IStudentsServices, StudentsServices>();
             services.AddScoped<IFilesServices, FilesServices>();
             services.AddScoped<IHostEnvironment, MockIHostEnvironment>();
 
             services.AddDbContext<KeelteKoolV2Context>
                 (x =>
                 {               
-                    x.UseInMemoryDatabase("TEST");
+                    x.UseInMemoryDatabase($"TEST-{Guid.NewGuid()}");
                     x.ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning));
                 }
                 );
