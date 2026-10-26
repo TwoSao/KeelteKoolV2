@@ -1,0 +1,24 @@
+@model KeelteKoolV2.Models.Students.StudentViewModel
+
+<h1>@(ViewBag.ViewType == "delete" ? "Kustuta õpilane" : "Õpilase andmed")</h1>
+<hr />
+<dl class="row">
+    <dt class="col-sm-3">Eesnimi</dt>
+    <dd class="col-sm-9">@Model.FirstName</dd>
+    <dt class="col-sm-3">Perekonnanimi</dt>
+    <dd class="col-sm-9">@Model.LastName</dd>
+</dl>
+
+@if (ViewBag.ViewType == "delete")
+{
+    <form asp-action="DeleteConfirmed" asp-controller="Students" method="post">
+        <input type="hidden" name="id" value="@Model.Id" />
+        <button type="submit" class="btn btn-danger">Kustuta</button>
+        <a asp-action="Index" class="btn btn-secondary">Tühista</a>
+    </form>
+}
+else
+{
+    <a asp-action="Update" asp-route-id="@Model.Id" class="btn btn-warning">Muuda</a>
+    <a asp-action="Index" class="btn btn-primary">Tagasi</a>
+}
