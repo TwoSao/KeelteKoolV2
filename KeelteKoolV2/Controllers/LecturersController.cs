@@ -71,8 +71,10 @@ namespace KeelteKoolV2.Controllers
             {
                 return RedirectToAction("Error", "Home");
             }
-
-            return RedirectToAction(nameof(Index));
+            else
+            {
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         [HttpGet]
@@ -90,14 +92,12 @@ namespace KeelteKoolV2.Controllers
                 return NotFound();
             }
 
-            var vm = new LecturerViewModel()
-            {
-                Id = lecturer.Id,
-                FirstName = lecturer.FirstName,
-                LastName = lecturer.LastName,
-                Qualifications = lecturer.Qualifications,
-                UserID = lecturer.UserID
-            };
+            var vm = new LecturerViewModel() { };
+            vm.Id = lecturer.Id;
+            vm.FirstName = lecturer.FirstName;
+            vm.LastName = lecturer.LastName;
+            vm.Qualifications = lecturer.Qualifications;
+            vm.UserID = lecturer.UserID;
 
             ViewData["ViewType"] = "details";
 
@@ -119,16 +119,14 @@ namespace KeelteKoolV2.Controllers
                 return NotFound();
             }
 
-            var vm = new LecturerCreateUpdateViewModel()
-            {
-                Id = lecturer.Id,
-                FirstName = lecturer.FirstName,
-                LastName = lecturer.LastName,
-                Qualifications = lecturer.Qualifications,
-                UserID = lecturer.UserID,
-                CreatedAt = lecturer.CreatedAt,
-                ModifiedAt = lecturer.ModifiedAt
-            };
+            var vm = new LecturerCreateUpdateViewModel() { };
+            vm.Id = lecturer.Id;
+            vm.FirstName = lecturer.FirstName;
+            vm.LastName = lecturer.LastName;
+            vm.Qualifications = lecturer.Qualifications;
+            vm.UserID = lecturer.UserID;
+            vm.CreatedAt = lecturer.CreatedAt;
+            vm.ModifiedAt = lecturer.ModifiedAt;
 
             return View("CreateUpdate", vm);
         }
@@ -178,14 +176,12 @@ namespace KeelteKoolV2.Controllers
                 return NotFound();
             }
 
-            var vm = new LecturerViewModel()
-            {
-                Id = lecturer.Id,
-                FirstName = lecturer.FirstName,
-                LastName = lecturer.LastName,
-                Qualifications = lecturer.Qualifications,
-                UserID = lecturer.UserID
-            };
+            var vm = new LecturerViewModel() { };
+            vm.Id = lecturer.Id;
+            vm.FirstName = lecturer.FirstName;
+            vm.LastName = lecturer.LastName;
+            vm.Qualifications = lecturer.Qualifications;
+            vm.UserID = lecturer.UserID;
 
             ViewData["ViewType"] = "delete";
 
