@@ -24,6 +24,37 @@ namespace KeelteKoolV2.SeleniumTesting
         /// <summary>Selle testijooksu unikaalne perenimi (Guid), mille järgi lektorit tabelist otsitakse.</summary>
         public static string thisRunLastName { get; set; } = "";
 
+        /// <summary>
+        /// Test, mis loob uue lektori unikaalse perenimega ning kontrollib, et lektor ilmub nimekirja
+        /// õigete andmetega (eesnimi, perenimi, kvalifikatsioon).
+        /// </summary>
+        [Fact]
+        [Order(1)]
+        public void Should_NavigateToIndex_AddLecturerWithUniqueData_ReturnToIndex()
+        {
+            /* ülesseade */
+            IWebDriver driver = TestSetup_NavigateToIndex();
+            try
+            {
+                /* tegevus */
+                driver.FindElement(By.Id("IndexCreateNewLecturer_BTN")).Click();
+                string uniqueLastName = DataEntry_Lecturer(driver, FirstNameCreate, QualificationsCreate);
+                thisRunLastName = uniqueLastName;
+                driver.FindElement(By.Id("CU_Create_BTN")).Click();
+
+                /* kontroll */
+                IWebElement? row = FindRowByLastName(driver, uniqueLastName);
+                Assert.NotNull(row);
+                Assert.Equal(FirstNameCreate, row!.FindElement(By.Id("IndexTableLecturerFirstName")).Text);
+                Assert.Equal(uniqueLastName, row.FindElement(By.Id("IndexTableLecturerLastName")).Text);
+                Assert.Equal(QualificationsCreate, row.FindElement(By.Id("IndexTableLecturerQualifications")).Text);
+            }
+            finally
+            {
+                driver.Quit();
+            }
+        }
+
         /* ---------- abimeetodid ---------- */
 
         /// <summary>Loob Chrome draiveri, mis aktsepteerib arenduse enda allkirjastatud HTTPS sertifikaati.</summary>
