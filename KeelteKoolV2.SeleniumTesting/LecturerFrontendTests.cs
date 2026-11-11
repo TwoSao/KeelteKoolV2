@@ -55,6 +55,39 @@ namespace KeelteKoolV2.SeleniumTesting
             }
         }
 
+        /// <summary>
+        /// Test, mis avab eelnevalt loodud lektori andmete vaate ning kontrollib, et kõik väljad
+        /// (id, eesnimi, perenimi, kvalifikatsioon) on täidetud ja vastavad loomisel sisestatule.
+        /// </summary>
+        [Fact]
+        [Order(2)]
+        public void Should_NavigateToDetailsOfALecturer_WithPreviouslyCreatedUniqueData()
+        {
+            /* ülesseade */
+            IWebDriver driver = TestSetup_NavigateToIndex();
+            try
+            {
+                /* tegevus */
+                ClickRowAction(driver, thisRunLastName, "IndexTableLecturerDetails_BTN");
+
+                string detailsId = driver.FindElement(By.Id("DD_LecturerGuid")).Text;
+                string detailsFirstName = driver.FindElement(By.Id("DD_LecturerFirstName")).Text;
+                string detailsLastName = driver.FindElement(By.Id("DD_LecturerLastName")).Text;
+                string detailsQualifications = driver.FindElement(By.Id("DD_LecturerQualifications")).Text;
+
+                /* kontroll */
+                Assert.True(Guid.TryParse(detailsId, out Guid parsedId));
+                Assert.NotEqual(Guid.Empty, parsedId);
+                Assert.Equal(FirstNameCreate, detailsFirstName);
+                Assert.Equal(thisRunLastName, detailsLastName);
+                Assert.Equal(QualificationsCreate, detailsQualifications);
+            }
+            finally
+            {
+                driver.Quit();
+            }
+        }
+
         /* ---------- abimeetodid ---------- */
 
         /// <summary>Loob Chrome draiveri, mis aktsepteerib arenduse enda allkirjastatud HTTPS sertifikaati.</summary>
