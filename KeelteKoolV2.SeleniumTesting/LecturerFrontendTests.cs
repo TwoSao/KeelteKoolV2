@@ -127,6 +127,33 @@ namespace KeelteKoolV2.SeleniumTesting
             }
         }
 
+        /// <summary>
+        /// Test, mis kustutab eelnevalt loodud ja muudetud lektori kustutamisvaatest ning kontrollib,
+        /// et lektorit enam nimekirjas ei ole.
+        /// </summary>
+        [Fact]
+        [Order(4)]
+        public void Should_DeleteUniqueLecturer_FromDeleteView()
+        {
+            /* ülesseade */
+            IWebDriver driver = TestSetup_NavigateToIndex();
+            try
+            {
+                Assert.NotNull(FindRowByLastName(driver, thisRunLastName)); // kontrollime, et kustutatav olemas on
+
+                /* tegevus */
+                ClickRowAction(driver, thisRunLastName, "IndexTableLecturerDelete_BTN");
+                driver.FindElement(By.Id("DeleteDelete_BTN")).Click();
+
+                /* kontroll */
+                Assert.Null(FindRowByLastName(driver, thisRunLastName));
+            }
+            finally
+            {
+                driver.Quit();
+            }
+        }
+
         /* ---------- abimeetodid ---------- */
 
         /// <summary>Loob Chrome draiveri, mis aktsepteerib arenduse enda allkirjastatud HTTPS sertifikaati.</summary>
