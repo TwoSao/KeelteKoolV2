@@ -154,6 +154,35 @@ namespace KeelteKoolV2.SeleniumTesting
             }
         }
 
+        /// <summary>
+        /// Test, mis vajutab menüüs lingile "Lektorid" ning kontrollib, et avaneb lektorite nimekiri:
+        /// aadress sisaldab "/Lecturers", pealkiri on "Lektorid" ning tabel ja "Lisa uus lektor" nupp on nähtaval.
+        /// </summary>
+        [Fact]
+        [Order(5)]
+        public void Should_OpenLecturersIndex_FromNavigationMenu()
+        {
+            /* ülesseade */
+            IWebDriver driver = CreateDriver();
+            try
+            {
+                driver.Url = BaseUrl;
+
+                /* tegevus */
+                driver.FindElement(By.Id("Nav_Lecturers_LNK")).Click();
+
+                /* kontroll */
+                Assert.Contains("/Lecturers", driver.Url);
+                Assert.Equal("Lektorid", driver.FindElement(By.CssSelector("div.h1")).Text);
+                Assert.True(driver.FindElement(By.Id("IndexTable")).Displayed);
+                Assert.True(driver.FindElement(By.Id("IndexCreateNewLecturer_BTN")).Displayed);
+            }
+            finally
+            {
+                driver.Quit();
+            }
+        }
+
         /* ---------- abimeetodid ---------- */
 
         /// <summary>Loob Chrome draiveri, mis aktsepteerib arenduse enda allkirjastatud HTTPS sertifikaati.</summary>
