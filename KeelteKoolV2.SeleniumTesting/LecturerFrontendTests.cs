@@ -88,6 +88,45 @@ namespace KeelteKoolV2.SeleniumTesting
             }
         }
 
+        /// <summary>
+        /// Test, mis muudab eelnevalt loodud lektori eesnime ja kvalifikatsiooni (perenimi jääb samaks),
+        /// salvestab muudatuse ning kontrollib andmete vaates, et väärtused on tõesti uued
+        /// ja perenimi (unikaalne tunnus) on muutumatu.
+        /// </summary>
+        [Fact]
+        [Order(3)]
+        public void Should_UpdateDetailsOfUniqueLecturer_WithNewData()
+        {
+            /* ülesseade */
+            IWebDriver driver = TestSetup_NavigateToIndex();
+            try
+            {
+                /* tegevus */
+                ClickRowAction(driver, thisRunLastName, "IndexTableLecturerUpdate_BTN");
+
+                SetField(driver, "CU_Lecturer_FirstName", FirstNameUpdate);
+                SetField(driver, "CU_Lecturer_Qualifications", QualificationsUpdate);
+                driver.FindElement(By.Id("CU_Update_BTN")).Click();
+                driver.FindElement(By.Id("CU_Cancel_BTN")).Click(); // "Tagasi" - tagasi nimekirja
+
+                ClickRowAction(driver, thisRunLastName, "IndexTableLecturerDetails_BTN");
+                string detailsFirstName = driver.FindElement(By.Id("DD_LecturerFirstName")).Text;
+                string detailsLastName = driver.FindElement(By.Id("DD_LecturerLastName")).Text;
+                string detailsQualifications = driver.FindElement(By.Id("DD_LecturerQualifications")).Text;
+
+                /* kontroll */
+                Assert.Equal(FirstNameUpdate, detailsFirstName);
+                Assert.NotEqual(FirstNameCreate, detailsFirstName);
+                Assert.Equal(QualificationsUpdate, detailsQualifications);
+                Assert.NotEqual(QualificationsCreate, detailsQualifications);
+                Assert.Equal(thisRunLastName, detailsLastName);
+            }
+            finally
+            {
+                driver.Quit();
+            }
+        }
+
         /* ---------- abimeetodid ---------- */
 
         /// <summary>Loob Chrome draiveri, mis aktsepteerib arenduse enda allkirjastatud HTTPS sertifikaati.</summary>
