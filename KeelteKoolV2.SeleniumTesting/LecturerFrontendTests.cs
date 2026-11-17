@@ -183,6 +183,38 @@ namespace KeelteKoolV2.SeleniumTesting
             }
         }
 
+        /// <summary>
+        /// Test, mis proovib luua lektorit tühjade kohustuslike väljadega (eesnimi, perenimi).
+        /// Kontrollib, et lektorit ei salvestata: kasutaja suunatakse vealehele ja nimekirja
+        /// ei lisandu ühtegi uut rida.
+        /// </summary>
+        [Fact]
+        [Order(6)]
+        public void Should_NotCreateLecturer_WhenRequiredFieldsAreEmpty()
+        {
+            /* ülesseade */
+            IWebDriver driver = TestSetup_NavigateToIndex();
+            try
+            {
+                int rowsBefore = GetRows(driver).Count;
+                driver.FindElement(By.Id("IndexCreateNewLecturer_BTN")).Click();
+
+                /* tegevus */
+                SetField(driver, "CU_Lecturer_Qualifications", "Ainult kvalifikatsioon " + Guid.NewGuid());
+                driver.FindElement(By.Id("CU_Create_BTN")).Click();
+
+                /* kontroll */
+                Assert.Contains("/Home/Error", driver.Url);
+
+                driver.Url = BaseUrl + "Lecturers";
+                Assert.Equal(rowsBefore, GetRows(driver).Count);
+            }
+            finally
+            {
+                driver.Quit();
+            }
+        }
+
         /* ---------- abimeetodid ---------- */
 
         /// <summary>Loob Chrome draiveri, mis aktsepteerib arenduse enda allkirjastatud HTTPS sertifikaati.</summary>
