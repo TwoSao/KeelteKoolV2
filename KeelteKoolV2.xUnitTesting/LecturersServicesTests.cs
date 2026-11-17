@@ -1,90 +1,218 @@
-﻿using KeelteKoolV2.Core.DTO;
+using KeelteKoolV2.Core.Domain;
+using KeelteKoolV2.Core.DTO;
 using KeelteKoolV2.Core.ServiceInterface;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
 
 namespace KeelteKoolV2.xUnitTesting
 {
     public class LecturersServicesTests : TestBase
     {
+        // Kontrollib, et uue lektori lisamine andmebaasi töötab korrektselt
         [Fact]
-        public async Task Should_AddNewLecturer_WhenResultISReturned()
+        public async Task Should_AddNewLecturer_WhenResultIsReturned()
         {
-            //ülesseade
-            LecturerDTO dto = new LecturerDTO();
-            dto.FirstName = "Test";
-            dto.LastName = "Test";
-            dto.Qualifications = "Testicles";
-            //dto.Image = 
+            // ülesseade
+            LecturerDTO dto = MockLecturerDTOData();
 
-            //tegevus
+            // tegevus
             var result = await Svc<ILecturersServices>().Create(dto);
 
-            //kontroll
+            // kontroll
             Assert.NotNull(result);
+            Assert.Equal(dto.FirstName, result.FirstName);
+            Assert.Equal(dto.LastName, result.LastName);
+            Assert.Equal(dto.Qualifications, result.Qualifications);
+            Assert.NotEqual(Guid.Empty, result.Id);
+            Assert.True(result.CreatedAt <= DateTime.Now);
         }
 
-        //details test
+        // Kontrollib, et tühjade väljadega lektori lisamine ei õnnestu
         [Fact]
-        public async Task Should_GetLecturerDetails_WhenGuidISNotNull()
+        public async Task ShouldNot_AddNewLecturer_WhenRequiredFieldsAreEmpty()
         {
-            //ülesseade
-            LecturerDTO dto = new LecturerDTO();
-            dto.FirstName = "Test";
-            dto.LastName = "Test";
-            dto.Qualifications = "Testicles";
-            var createdLecturer = await Svc<ILecturersServices>().Create(dto);
+            // ülesseade
+            LecturerDTO dto = MockLecturerDTOData();
+            dto.FirstName = string.Empty;
+            dto.LastName = string.Empty;
 
-            //tegevus
+            // tegevus
+            var result = await Svc<ILecturersServices>().Create(dto);
+
+            // kontroll
+            Assert.Null(result);
+        }
+
+        // Kontrollib, et lektori detailid tagastatakse õige ID järgi
+        [Fact]
+        public async Task Should_ReturnLecturerDetails_WhenGuidIsNotNull()
+        {
+            // ülesseade
+            Lecturer createdLecturer = await AddLecturerToDB();
+
+            // tegevus
             var result = await Svc<ILecturersServices>().DetailAsync(createdLecturer.Id);
 
-            //kontroll
+            // kontroll
             Assert.NotNull(result);
+            Assert.Equal(createdLecturer.Id, result.Id);
+            Assert.Equal(createdLecturer.FirstName, result.FirstName);
+            Assert.Equal(createdLecturer.LastName, result.LastName);
+            Assert.Equal(createdLecturer.Qualifications, result.Qualifications);
+            Assert.True(result.Id == createdLecturer.Id);
         }
 
-        //update test
+        // Kontrollib, et lektori andmete uuendamine salvestab uued andmed õigesti
         [Fact]
         public async Task Should_UpdateLecturerWithNewData_WhenDataIsDifferentFromDB()
         {
-            //ülesseade
-            LecturerDTO dto = new LecturerDTO();
-            dto.FirstName = "Test";
-            dto.LastName = "Test";
-            dto.Qualifications = "Testicles";
-            var createdLecturer = await Svc<ILecturersServices>().Create(dto);
+            // ülesseade
+            Lecturer createdLecturer = await AddLecturerToDB();
 
-            LecturerDTO updatedinfo = new LecturerDTO();
-            updatedinfo.FirstName = "TestUusinfo";
-            updatedinfo.LastName = "Test2222222222";
-            updatedinfo.Qualifications = "Maximum OwO";
+            LecturerDTO updatedDto = new LecturerDTO();
+            updatedDto.Id = createdLecturer.Id;
+            updatedDto.FirstName = "Uus Eesnimi";
+            updatedDto.LastName = "Uus Perenimi";
+            updatedDto.Qualifications = "Doktor";
+            updatedDto.CreatedAt = createdLecturer.CreatedAt;
 
-            //tegevus
-            var result = await Svc<ILecturersServices>().Update(updatedinfo);
+            // tegevus
+            var result = await Svc<ILecturersServices>().Update(updatedDto);
 
-            //kontroll
+            // kontroll
             Assert.NotNull(result);
+            Assert.Equal(updatedDto.Id, result.Id);
+            Assert.Equal(updatedDto.FirstName, result.FirstName);
+            Assert.Equal(updatedDto.LastName, result.LastName);
+            Assert.Equal(updatedDto.Qualifications, result.Qualifications);
+            Assert.True(result.ModifiedAt >= createdLecturer.CreatedAt);
         }
 
-        //delete test
+        // Kontrollib, et lektori kustutamine eemaldab kirje andmebaasist
         [Fact]
         public async Task Should_DeleteLecturer_WhenValidIDIsGiven()
         {
-            //ülesseade
-            LecturerDTO dto = new LecturerDTO();
-            dto.FirstName = "Test";
-            dto.LastName = "Test";
-            dto.Qualifications = "Testicles";
-            var createdLecturer = await Svc<ILecturersServices>().Create(dto);
+            // ülesseade
+            Lecturer createdLecturer = await AddLecturerToDB();
 
-            //tegevus
-            var result = await Svc<ILecturersServices>().Delete(createdLecturer.Id);
+            // tegevus
+            var deletedLecturer = await Svc<ILecturersServices>().Delete(createdLecturer.Id);
+            var result = await Svc<ILecturersServices>().DetailAsync(createdLecturer.Id);
 
-            //kontroll
-            Assert.NotNull(result);
+            // kontroll
+            Assert.Null(result);
+            Assert.NotNull(deletedLecturer);
+            Assert.Equal(createdLecturer.Id, deletedLecturer.Id);
+            Assert.Equal(createdLecturer.FirstName, deletedLecturer.FirstName);
+            Assert.NotEqual(deletedLecturer, result);
         }
 
-        
+        // Kontrollib, et null DTO puhul ei lisata lektorit andmebaasi
+        [Fact]
+        public async Task ShouldNot_AddLecturer_WhenDtoIsNull()
+        {
+            // ülesseade
+            LecturerDTO dto = null;
+
+            // tegevus
+            var result = await Svc<ILecturersServices>().Create(dto);
+
+            // kontroll
+            Assert.Null(result);
+        }
+
+        // Kontrollib, et olematut ID-d kasutades tagastatakse null
+        [Fact]
+        public async Task ShouldNot_ReturnLecturerDetails_WhenGuidDoesNotExist()
+        {
+            // ülesseade
+            Guid fakeId = Guid.NewGuid();
+
+            // tegevus
+            var result = await Svc<ILecturersServices>().DetailAsync(fakeId);
+
+            // kontroll
+            Assert.Null(result);
+        }
+
+        // Kontrollib, et lektori eesnimi ei ole tühi pärast lisamist
+        [Fact]
+        public async Task Should_HaveNonEmptyFirstName_WhenLecturerIsCreated()
+        {
+            // ülesseade
+            LecturerDTO dto = MockLecturerDTOData();
+
+            // tegevus
+            var result = await Svc<ILecturersServices>().Create(dto);
+
+            // kontroll
+            Assert.NotNull(result);
+            Assert.NotNull(result.FirstName);
+            Assert.NotEmpty(result.FirstName);
+            Assert.NotNull(result.LastName);
+            Assert.NotEmpty(result.LastName);
+            Assert.True(result.FirstName.Length > 0);
+        }
+
+        // Kontrollib, et lektori CreatedAt ja ModifiedAt on seatud lisamise hetkel
+        [Fact]
+        public async Task Should_SetCreatedAtAndModifiedAt_WhenLecturerIsCreated()
+        {
+            // ülesseade
+            LecturerDTO dto = MockLecturerDTOData();
+            DateTime beforeCreate = DateTime.Now.AddSeconds(-1);
+
+            // tegevus
+            var result = await Svc<ILecturersServices>().Create(dto);
+
+            // kontroll
+            Assert.NotNull(result);
+            Assert.True(result.CreatedAt >= beforeCreate);
+            Assert.True(result.ModifiedAt >= beforeCreate);
+            Assert.True(result.CreatedAt <= DateTime.Now);
+            Assert.Equal(result.CreatedAt.Date, result.ModifiedAt.Date);
+        }
+
+        // Kontrollib, et uuendamisel CreatedAt ei muutu, aga ModifiedAt muutub
+        [Fact]
+        public async Task Should_NotChangeCreatedAt_WhenLecturerIsUpdated()
+        {
+            // ülesseade
+            Lecturer createdLecturer = await AddLecturerToDB();
+
+            LecturerDTO updatedDto = new LecturerDTO();
+            updatedDto.Id = createdLecturer.Id;
+            updatedDto.FirstName = "Muudetud";
+            updatedDto.LastName = "Nimi";
+            updatedDto.Qualifications = "Magister";
+            updatedDto.CreatedAt = createdLecturer.CreatedAt;
+
+            // tegevus
+            var result = await Svc<ILecturersServices>().Update(updatedDto);
+
+            // kontroll
+            Assert.NotNull(result);
+            Assert.Equal(createdLecturer.CreatedAt, result.CreatedAt);
+            Assert.NotEqual(createdLecturer.FirstName, result.FirstName);
+            Assert.NotEqual(createdLecturer.LastName, result.LastName);
+            Assert.Equal(updatedDto.Qualifications, result.Qualifications);
+            Assert.True(result.ModifiedAt >= result.CreatedAt);
+        }
+
+        private async Task<Lecturer> AddLecturerToDB()
+        {
+            LecturerDTO dto = MockLecturerDTOData();
+            var created = await Svc<ILecturersServices>().Create(dto);
+            return created;
+        }
+
+        private LecturerDTO MockLecturerDTOData()
+        {
+            return new LecturerDTO
+            {
+                FirstName = "Mari",
+                LastName = "Maasikas",
+                Qualifications = "Magistrikraad inglise filoloogias"
+            };
+        }
     }
 }

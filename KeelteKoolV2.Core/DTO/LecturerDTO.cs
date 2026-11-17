@@ -7,7 +7,7 @@ namespace KeelteKoolV2.Core.DTO
 {
     public class LecturerDTO
     {
-        public Guid Id { get; set; }
+        public Guid? Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
 
