@@ -215,6 +215,36 @@ namespace KeelteKoolV2.SeleniumTesting
             }
         }
 
+        /// <summary>
+        /// Test, mis loob ajutise lektori, avab kustutamisvaate ja vajutab "Tühista".
+        /// Kontrollib, et kasutaja jõuab tagasi nimekirja ning lektor on endiselt olemas.
+        /// Lõpus kustutab ajutise lektori.
+        /// </summary>
+        [Fact]
+        [Order(7)]
+        public void Should_KeepLecturer_WhenDeleteIsCancelled()
+        {
+            /* ülesseade */
+            IWebDriver driver = TestSetup_NavigateToIndex();
+            string lastName = CreateLecturerViaUi(driver, "Peeter", "Test kustutamise tühistamine");
+            try
+            {
+                /* tegevus */
+                ClickRowAction(driver, lastName, "IndexTableLecturerDelete_BTN");
+                Assert.Equal(lastName, driver.FindElement(By.Id("DD_LecturerLastName")).Text); // oleme õige lektori kustutusvaates
+                driver.FindElement(By.Id("DeleteCancel_BTN")).Click();
+
+                /* kontroll */
+                Assert.EndsWith("/Lecturers", driver.Url.TrimEnd('/'));
+                Assert.NotNull(FindRowByLastName(driver, lastName));
+            }
+            finally
+            {
+                CleanupLecturer(driver, lastName);
+                driver.Quit();
+            }
+        }
+
         /* ---------- abimeetodid ---------- */
 
         /// <summary>Loob Chrome draiveri, mis aktsepteerib arenduse enda allkirjastatud HTTPS sertifikaati.</summary>
