@@ -245,6 +245,46 @@ namespace KeelteKoolV2.SeleniumTesting
             }
         }
 
+        /// <summary>
+        /// Test, mis loob ajutise lektori, avab muutmisvaate ning kontrollib, et vorm on täidetud olemasolevate andmetega.
+        /// Seejärel muudab eesnime, aga vajutab salvestamise asemel "Tagasi" - kontrollib, et muudatust ei salvestatud.
+        /// Lõpus kustutab ajutise lektori.
+        /// </summary>
+        [Fact]
+        [Order(8)]
+        public void Should_PrefillUpdateForm_AndNotSaveChanges_WhenUserGoesBack()
+        {
+            /* ülesseade */
+            IWebDriver driver = TestSetup_NavigateToIndex();
+            string lastName = CreateLecturerViaUi(driver, "Juhan", "Algne kvalifikatsioon");
+            try
+            {
+                /* tegevus */
+                ClickRowAction(driver, lastName, "IndexTableLecturerUpdate_BTN");
+
+                string prefilledFirstName = driver.FindElement(By.Id("CU_Lecturer_FirstName")).GetAttribute("value") ?? "";
+                string prefilledLastName = driver.FindElement(By.Id("CU_Lecturer_LastName")).GetAttribute("value") ?? "";
+                string prefilledQualifications = driver.FindElement(By.Id("CU_Lecturer_Qualifications")).GetAttribute("value") ?? "";
+
+                SetField(driver, "CU_Lecturer_FirstName", "Salvestamata");
+                driver.FindElement(By.Id("CU_Cancel_BTN")).Click();
+
+                /* kontroll */
+                Assert.Equal("Juhan", prefilledFirstName);
+                Assert.Equal(lastName, prefilledLastName);
+                Assert.Equal("Algne kvalifikatsioon", prefilledQualifications);
+
+                IWebElement? row = FindRowByLastName(driver, lastName);
+                Assert.NotNull(row);
+                Assert.Equal("Juhan", row!.FindElement(By.Id("IndexTableLecturerFirstName")).Text);
+            }
+            finally
+            {
+                CleanupLecturer(driver, lastName);
+                driver.Quit();
+            }
+        }
+
         /* ---------- abimeetodid ---------- */
 
         /// <summary>Loob Chrome draiveri, mis aktsepteerib arenduse enda allkirjastatud HTTPS sertifikaati.</summary>
